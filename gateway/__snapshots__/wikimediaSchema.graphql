@@ -1,0 +1,297 @@
+""""""
+directive @cacheControl(maxAge: Int, scope: CacheControlScope) on FIELD_DEFINITION | OBJECT | INTERFACE
+""""""
+type Query {
+  wikidata: Site
+  sites: [Site]!
+  language(
+    """If no code is specified, the language tag from the 'Accept-Language' header will be used."""
+    code: [ID!]
+  ): Language
+  languages(code: [ID!]): [Language]!
+}
+""""""
+type Site {
+  dbname: ID!
+  url: String!
+  code: String!
+  sitename: String!
+  closed: Boolean!
+  fishbowl: Boolean!
+  private: Boolean!
+  language: Language
+  page(id: Int, title: String): Page
+  entity(id: ID!): Entity
+  sparql(distinct: Boolean = true, variable: [String!] = ["?entity"], where: [String!]!, orderBy: [String!], limit: Int, offset: Int): [Entity!]!
+}
+""""""
+type Language {
+  code: ID!
+  name: String!
+  localname: String!
+  dir: String!
+  site(code: ID!): Site
+  sites: [Site]!
+}
+""""""
+type Page {
+  pageid: Int
+  ns: Int
+  title: String
+  contentmodel: String
+  pagelanguage: String
+  pagelanguagehtmlcode: String
+  pagelanguagedir: String
+  touched: String
+  length: Int
+  entity: Entity
+  extract(chars: Int, sentences: Int, intro: Boolean, plaintext: Boolean, sectionformat: PageExtractSectionFormat): String
+  linkshere(continue: String, namespace: [Int!], show: [String!], limit: Int): PageList
+  imageinfo(limit: Int, start: String, end: String, continue: String, localonly: Boolean): ImageInfo
+}
+""""""
+type Entity {
+  page: Page
+  modified: String
+  type: String
+  id: ID
+  claims(property: [ID!]): [Claim!]!
+  label(
+    """If no language is specified, the language tag from the 'Accept-Language' header will be used."""
+    language: [String!]
+  ): EntityLabel
+  labels(language: [String!]): [EntityLabel!]!
+  description(
+    """If no language is specified, the language tag from the 'Accept-Language' header will be used."""
+    language: [String!]
+  ): EntityLabel
+  descriptions(language: [String!]): [EntityLabel!]!
+  alias(
+    """If no language is specified, the language tag from the 'Accept-Language' header will be used."""
+    language: [String!]
+  ): [EntityLabel!]!
+  aliases(language: [String!]): [EntityLabel!]!
+  sitelinks: SiteLinkMap
+  lemma(
+    """If no language is specified, the language tag from the 'Accept-Language' header will be used."""
+    language: [String!]
+  ): EntityLabel
+  lemmas(language: [String!]): [EntityLabel!]!
+  lexicalCategory: Entity
+  language: Entity
+  forms: [Entity!]!
+  senses: [Entity!]!
+  representation(
+    """If no language is specified, the language tag from the 'Accept-Language' header will be used."""
+    language: [String!]
+  ): EntityLabel
+  representations(language: [String!]): [EntityLabel!]!
+  grammaticalFeatures: [Entity!]!
+  gloss(
+    """If no language is specified, the language tag from the 'Accept-Language' header will be used."""
+    language: [String!]
+  ): EntityLabel
+  glosses(language: [String!]): [EntityLabel!]!
+}
+""""""
+type Claim {
+  mainsnak: Snak
+  type: String
+  id: ID
+  rank: String
+  qualifiers(property: [ID!]): [Snak!]!
+  references: [Reference!]!
+}
+""""""
+type Snak {
+  snaktype: String
+  property: Entity
+  hash: String
+  datatype: String
+  datavalue: SnakValue
+}
+""""""
+interface SnakValue {
+  type: String
+}
+""""""
+type Reference {
+  hash: String
+  snaks(property: [ID!]): [Snak!]!
+}
+""""""
+type EntityLabel {
+  language: String!
+  value: String!
+}
+""""""
+type SiteLinkMap {
+  wiki(
+    """If no language is specified, the language tag from the 'Accept-Language' header will be used."""
+    language: [ID!]
+  ): SiteLink
+  wiktionary(
+    """If no language is specified, the language tag from the 'Accept-Language' header will be used."""
+    language: [ID!]
+  ): SiteLink
+  wikibooks(
+    """If no language is specified, the language tag from the 'Accept-Language' header will be used."""
+    language: [ID!]
+  ): SiteLink
+  wikiquote(
+    """If no language is specified, the language tag from the 'Accept-Language' header will be used."""
+    language: [ID!]
+  ): SiteLink
+  wikisource(
+    """If no language is specified, the language tag from the 'Accept-Language' header will be used."""
+    language: [ID!]
+  ): SiteLink
+  wikinews(
+    """If no language is specified, the language tag from the 'Accept-Language' header will be used."""
+    language: [ID!]
+  ): SiteLink
+  wikiversity(
+    """If no language is specified, the language tag from the 'Accept-Language' header will be used."""
+    language: [ID!]
+  ): SiteLink
+  wikivoyage(
+    """If no language is specified, the language tag from the 'Accept-Language' header will be used."""
+    language: [ID!]
+  ): SiteLink
+  wikidata: SiteLink
+  links: [SiteLink!]!
+  language(
+    """
+    If no code is specified, the language tag from the 'Accept-Language' header will be used.
+    """
+    code: [ID!]
+  ): SiteLinkLanguage
+  languages(code: [ID!]): [SiteLinkLanguage!]!
+}
+""""""
+type SiteLink {
+  site: Site!
+  page: Page!
+  badges: [Entity!]!
+  url: String!
+}
+""""""
+type SiteLinkLanguage {
+  code: ID!
+  name: String!
+  localname: String!
+  dir: String!
+  link(code: ID!): SiteLink
+  links(code: [ID!]): [SiteLink!]!
+}
+""""""
+enum PageExtractSectionFormat {
+  plain
+  raw
+  wiki
+}
+""""""
+type PageList {
+  continue: String
+  pages: [Page!]!
+}
+""""""
+type ImageInfo {
+  start: String
+  images: [Image!]!
+}
+""""""
+type Image {
+  archivename: String
+  bitdepth: Int
+  canonicaltitle: String
+  comment: String
+  parsedcomment: String
+  timestamp: String
+  url: String
+  descriptionurl: String
+  descriptionshorturl: String
+  size: Int
+  width: Int
+  height: Int
+  pagecount: Int
+  sha1: String
+  mime: String
+  mediatype: String
+  thumb(width: Int, height: Int): ImageThumb
+}
+""""""
+type ImageThumb {
+  url: String
+  width: Int
+  height: Int
+  mime: String
+}
+""""""
+type SnakValueString implements SnakValue {
+  value: String
+  type: String
+}
+""""""
+type SnakValueEntity implements SnakValue {
+  value: Entity
+  type: String
+}
+""""""
+type SnakValuePage implements SnakValue {
+  value: Page
+  type: String
+}
+""""""
+type SnakValueGlobeCoordinate implements SnakValue {
+  value: SnakValueGlobeCoordinateValue
+  type: String
+}
+""""""
+type SnakValueGlobeCoordinateValue {
+  latitude: Float
+  longitude: Float
+  precision: Float
+  globe: Entity
+}
+""""""
+type SnakValueMonolingualText implements SnakValue {
+  value: SnakValueMonolingualTextValue
+  type: String
+}
+""""""
+type SnakValueMonolingualTextValue {
+  text: String
+  language: String
+}
+""""""
+type SnakValueQuantity implements SnakValue {
+  value: SnakValueQuantityValue
+  type: String
+}
+""""""
+type SnakValueQuantityValue {
+  amount: String
+  unit: Entity
+}
+""""""
+type SnakValueTime implements SnakValue {
+  value: SnakValueTimeValue
+  type: String
+}
+""""""
+type SnakValueTimeValue {
+  time: String
+  timezone: Int
+  before: Int
+  after: Int
+  precision: Int
+  calendarmodel: Entity
+}
+""""""
+enum CacheControlScope {
+  PUBLIC
+  PRIVATE
+}
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload
