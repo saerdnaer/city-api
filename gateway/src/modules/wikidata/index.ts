@@ -74,14 +74,14 @@ const resolvers: IResolvers = {
 	},
 	Entity: {
 		name: {
-			selectionSet: `{ label { value } }`,
-			resolve: (x) => x?.label?.value,
+			selectionSet: `{ __label: label { value } }`,
+			resolve: (x) => x?.__label?.value,
 		},
 	},
 	Claim: {
 		key: {
-			selectionSet: `{ mainsnak { property { label { value } } } }`,
-			resolve: ({ mainsnak }) => mainsnak?.property?.label?.value,
+			selectionSet: `{ mainsnak { property { __label: label { value } } } }`,
+			resolve: ({ mainsnak }) => mainsnak?.property?.__label?.value,
 		},
 		datatype: {
 			selectionSet: `{ mainsnak { datatype } }`,
@@ -106,8 +106,8 @@ const resolvers: IResolvers = {
 	},
 	Snak: {
 		key: {
-			selectionSet: `{ property { label { value } } }`,
-			resolve: ({ property }) => property?.label?.value,
+			selectionSet: `{ property { __label: label { value } } }`,
+			resolve: ({ property }) => property?.__label?.value,
 		},
 		value: {
 			selectionSet: `{ datavalue { raw
